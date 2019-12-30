@@ -496,6 +496,9 @@ void MainWindow::onSendData(){
 void MainWindow::onReceiveSerialData(void* pData){
     pSerialReceiveData pSerialData = (pSerialReceiveData)pData;
     char buf[SERIAL_STRING_SIZE] = {0};
+    if(pSerialData->len >= SERIAL_STRING_SIZE){
+        return;
+    }
     for(int i = 0; i < pSerialData->len; i++){
         sprintf(((char*)buf) + (i * 3), "%02X ", pSerialData->data[i] & 0xFF);
     }

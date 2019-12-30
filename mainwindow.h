@@ -17,7 +17,7 @@
 #include "selfcombobox.h"
 
 #define WND_TIME_OUT            60
-#define READ_FILE_BUF_SIZE      32
+#define READ_FILE_BUF_SIZE      512
 #define PRINT_BUF_SIZE          512 * 4
 
 

@@ -238,10 +238,31 @@ void ScanSerial::receiveSerial(){
         if(qBytes.size()){
             char buf[SERIAL_RECEIVE_SIZE] = {0};
             int idx = 0;
-            for(int i = 0; i < qBytes.size(); i++){
-                buf[idx] = qBytes.data()[i];
-                idx++;
+            int len = SERIAL_RECEIVE_SIZE;
+            if(len < qBytes.size()){
+                int size = qBytes.size() / SERIAL_RECEIVE_SIZE;
+                for(int j = 0; j <= size; j++){
+                    idx = 0;
+                    for(int i = 0; i < len; i++){
+                        buf[idx] = qBytes.data()[i + j * SERIAL_RECEIVE_SIZE];
+                        idx++;
+                    }
+                    if(idx >= SERIAL_RECEIVE_SIZE){
+                        serialReceiveData data = {0};
+                        data.len = idx;
+                        memset(buf, 0, SERIAL_RECEIVE_SIZE);
+                        memcpy(data.data, buf, idx);
+                        idx = 0;
+                        emit ScanSerial::instance->sigSerialDataReceive((void*)&data);
+                    }
+                }
+            }else {
+                for(int i = 0; i < qBytes.size(); i++){
+                    buf[idx] = qBytes.data()[i];
+                    idx++;
+                }
             }
+
 
             #ifdef WIN32
                 long long start = GetTickCount();
@@ -261,6 +282,14 @@ void ScanSerial::receiveSerial(){
                 for(int i = 0; i < qBytes.size(); i++){
                     buf[idx] = qBytes.data()[i];
                     idx++;
+                    if(idx >= SERIAL_RECEIVE_SIZE){
+                        serialReceiveData data = {0};
+                        data.len = idx;
+                        memcpy(data.data, buf, idx);
+                        memset(buf, 0, SERIAL_RECEIVE_SIZE);
+                        emit ScanSerial::instance->sigSerialDataReceive((void*)&data);
+                        idx = 0;
+                    }
                 }
                 #ifdef WIN32
                     long long end = GetTickCount();
@@ -275,10 +304,12 @@ void ScanSerial::receiveSerial(){
                     }
                 #endif
             }
-            serialReceiveData data = {0};
-            data.len = idx;
-            memcpy(data.data, buf, idx);
-            emit ScanSerial::instance->sigSerialDataReceive((void*)&data);
+            if(idx){
+                serialReceiveData data = {0};
+                data.len = idx;
+                memcpy(data.data, buf, idx);
+                emit ScanSerial::instance->sigSerialDataReceive((void*)&data);
+            }
         }
     }while(0);
 }

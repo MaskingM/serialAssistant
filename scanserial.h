@@ -14,7 +14,7 @@
 using namespace std;
 #define SERIAL_DISCONNECT_TIME  100
 #define SERIAL_RECEIVE_SIZE     1024
-#define SERIAL_STRING_SIZE     SERIAL_RECEIVE_SIZE * 3
+#define SERIAL_STRING_SIZE     SERIAL_RECEIVE_SIZE * 4
 
 class ScanSerial;
 
